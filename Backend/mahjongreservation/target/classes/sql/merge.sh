@@ -1,0 +1,1 @@
+cat customer.sql faculty.sql items.sql orders.sql data.sql > all.sql
