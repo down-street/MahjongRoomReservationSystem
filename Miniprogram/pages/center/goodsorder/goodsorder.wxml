@@ -1,0 +1,42 @@
+<!--pages/center/mycredit/mycredit.wxml-->
+
+<view class="my-view">
+  <view class="card head-show">
+
+    <view style="text-align: center; font-size: 40rpx;">
+      商品订单
+    </view>
+  </view>
+
+  <scroll-view class="items records">
+    <view class="line-item" wx:for="{{records}}" wx:for-item="item" wx:key="index">
+      
+      <!-- 上行：商品内容 + 价格 -->
+      <view class="line-top">
+        <view class="name-row" style="display: flex; flex-wrap: wrap;">
+          <view 
+            wx:for="{{item.name_arr}}" 
+            wx:for-item="kv" 
+            wx:key="key" 
+            class="name-pair"
+            style="margin-right: 20rpx; font-size: 28rpx;"
+          >
+            {{kv.key}}: {{kv.value}}
+          </view>
+        </view>
+        <view class="price">{{item.price}} 元</view>
+      </view>
+  
+      <!-- 下行：时间 + 状态 -->
+      <view class="line-bottom">
+        <view class="time">下单时间：{{item.starttime}} </view>
+        <view class="status">{{item.status}}</view>
+      </view>
+  
+    </view>
+  </scroll-view>
+  
+
+
+
+</view>

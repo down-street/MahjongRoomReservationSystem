@@ -143,7 +143,7 @@ class RoomUsageOrder(models.Model):
     EndTime = models.DateTimeField()
     DurationTime = models.IntegerField()  # Unit: minutes
     def save(self, *args, **kwargs):
-        self.EndTime = self.StartTime + timedelta(minutes=self.DurationTime) # 自动计算
+        self.DurationTime=(self.EndTime - self.StartTime).total_seconds() /60 # 自动计算
         super().save(*args, **kwargs)
     def __str__(self):
         return f"Usage Order {self.UsageID}"

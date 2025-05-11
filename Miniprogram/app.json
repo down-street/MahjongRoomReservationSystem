@@ -1,0 +1,54 @@
+{
+    "pages": [
+        "pages/index/index",
+        "pages/function/function",
+        "pages/center/center",
+        "pages/center/login/login",
+        "pages/center/settings/settings",
+        "pages/center/mycredit/mycredit",
+        "pages/center/user/user",
+        "pages/goods/goods",
+        "pages/center/goodsorder/goodsorder"
+
+    ],
+    "window": {
+        "navigationBarBackgroundColor": "#fff",
+        "navigationBarTitleText": "朝夕棋牌室",
+        "navigationBarTextStyle": "black",
+        "backgroundColor": "#fff",
+        "onReachBottomDistance": 0,
+        "enablePullDownRefresh": true,
+        "backgroundTextStyle": "dark"
+    },
+    "tabBar": {
+        "selectedColor": "#707070",
+        "list": [
+            {
+                "pagePath": "pages/index/index",
+                "text": "首页",
+                "iconPath": "./resources/images/tabBar/index.png",
+                "selectedIconPath": "./resources/images/tabBar/_index.png"
+            },
+            {
+                "pagePath": "pages/function/function",
+                "text": "预约",
+                "iconPath": "./resources/images/tabBar/function.png",
+                "selectedIconPath": "./resources/images/tabBar/_function.png"
+            },
+            {
+                "pagePath": "pages/goods/goods",
+                "text": "商品购买",
+                "iconPath": "./resources/images/cart.png",
+                "selectedIconPath": "./resources/images/_cart.png"
+            },
+            {
+                "pagePath": "pages/center/center",
+                "text": "个人中心",
+                "iconPath": "./resources/images/tabBar/center.png",
+                "selectedIconPath": "./resources/images/tabBar/_center.png"
+            }
+        ]
+    },
+    "style": "v2",
+    "sitemapLocation": "sitemap.json"
+}

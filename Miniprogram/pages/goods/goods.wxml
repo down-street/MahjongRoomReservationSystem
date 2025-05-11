@@ -1,0 +1,52 @@
+<!--pages/goods/goods.wxml-->
+<view class="page-container">
+  <!-- 顶部标题 -->
+  <view class="header">
+    商品购买
+  </view>
+
+  <!-- 商品列表 -->
+  <scroll-view scroll-y class="product-list">
+    <block wx:for="{{products}}" wx:key="id">
+      <view class="product-item">
+        <image class="product-image" src="{{item.image}}" mode="aspectFit" />
+        
+        <view class="product-info">
+          <view class="product-name">{{item.name}}</view>
+          <view class="product-desc">{{item.desc}}</view>
+        </view>
+    
+        <view class="product-action">
+          <view class="quantity-control">
+            <!-- 减号按钮 -->
+            <view 
+              wx:if="{{item.count > 0}}" 
+              class="minus-btn" 
+              bindtap="removeFromCart" 
+              data-id="{{item.id}}"
+            >-</view>
+    
+            <!-- 数量显示 -->
+            <text wx:if="{{item.count > 0}}" class="item-count-text">{{item.count}}</text>
+    
+            <!-- 加号按钮 -->
+            <view
+              class="plus-btn" 
+              bindtap="addToCart" 
+              data-id="{{item.id}}"
+            >+</view>
+          </view>
+        </view>
+      </view>
+    </block>
+    
+  </scroll-view>
+
+  <!-- 底部结算栏 -->
+  <view class="footer">
+    <view class="footer-left">
+      共 {{totalCount}} 件商品，总计 ¥{{totalPrice}}
+    </view>
+    <button class="submit-button" bindtap="submitOrder">下单</button>
+  </view>
+</view>

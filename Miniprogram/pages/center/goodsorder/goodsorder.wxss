@@ -1,0 +1,50 @@
+/* pages/center/mycredit/mycredit.wxss */
+
+
+.my-view {
+  display: inline-block;
+  height: 100%;
+  width: 100%;
+  /* background-color: #eee; */
+}
+
+.head-show {
+  position: relative;
+  display: block;
+  margin: auto;
+  margin-top: 20rpx;
+  padding: 20rpx 20rpx;
+  width: calc(100% - 60rpx);
+  height: 100rpx;
+  line-height: 100rpx;
+  background-color: rgb(38, 172, 172);
+}
+
+
+.line-item {
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+  font-size: 28rpx;
+  background-color: whitesmoke;
+  border: yellowgreen;
+  border-radius: 16rpx;
+  height: 160rpx;
+}
+
+.line-top, .line-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.price, .status {
+  font-size: 30rpx;
+  color: #0eb4dd;
+  margin-left: auto;
+}
+
+.time {
+  font-size: 26rpx;
+  color: #666;
+}

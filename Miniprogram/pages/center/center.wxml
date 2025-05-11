@@ -1,0 +1,60 @@
+<!--pages/center/center.wxml-->
+
+<view>
+    <view id="background-image-view">
+        <image id="background-image" src="https://img.tusij.com/ips_templ_preview/2020-02-15/c4/c49b1d1e-cd1e-4fc3-95a3-a7b9dcf9db9a.png!w585?auth_key=1770336000-0-0-062915b4051efb7e9f5e4646c430f82a" mode="widthFix" />
+    </view>
+    <view style="position: relative; top: -60rpx;">
+        <view class="contents">
+            <!--头像和昵称-->
+            <view class="avater-block-main">
+                <!-- 头像 -->
+                <view class="avater-block" bindtap="handleTap" data-idx="userInfo">
+                    <!-- 进入个人资料-->
+                    <image class="avatar-image" src="https://gd-hbimg.huaban.com/cc80455c85bd2f7310ba80804ac48228fdc3a36c1080a-G7VV23_fw1200webp" mode="widthFix" />
+                </view>
+                <!--昵称-->
+                <view class="user-name-block" bindtap="handleTap" data-idx="userInfo">
+                    <text>{{nickname}}</text>
+                </view>
+            </view>
+
+            <!-- 信息 -->
+            <view class="user-info">
+                <view class="user-info-block">
+                    <view class="user-info-num">{{balance}}</view>
+                    <view>账户余额</view>
+                </view>
+                <view class="user-info-block">
+                    <view class="user-info-num">{{status}}</view>
+                    <view>状态</view>
+                </view>
+
+            </view>
+        </view>
+
+        <view class="card info-block-a">
+            <view class="info-block">
+                <view bindtap="handleTap" data-idx="roomorder">
+                    <image src="../../resources/images/orders.svg" mode="heightFix" />
+                    棋牌室订单
+                </view>
+                <view bindtap="handleTap" data-idx="goodsorder">
+                  <image src="../../resources/images/goods.svg" mode="heightFix" />
+                  商品订单
+              </view>
+                <view  bindtap="handleTap" data-idx="balancetop">
+                    <image src="../../resources/images/wallet.svg" mode="heightFix" />
+                    余额充值
+                </view>
+
+
+                <view bindtap="handleTap" data-idx="settings">
+                    <image src="../../resources/images/settings.svg" mode="heightFix" />
+                    设置
+                </view>
+            </view>
+        </view>
+
+    </view>
+</view>

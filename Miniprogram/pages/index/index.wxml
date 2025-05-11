@@ -1,0 +1,21 @@
+<!--index.wxml-->
+<view style="width:100%; position: absolute; top: 0; z-index: 10000;background-color: #fff;">
+ 
+    <!-- 广告位 -->
+    <view class="ad-block">
+      <image src="../../resources/images/background.jpeg" mode="aspectFill" class="ad-bg" />
+      <view class="ad-text">欢迎使用朝夕棋牌室小程序</view>
+    </view>
+    <swiper class="notice-swiper" autoplay circular interval="5000" duration="1500"  indicator-dots="true"
+    indicator-color="#ccc"
+    indicator-active-color="#0eb4dd" >
+      <block wx:for="{{notices}}" wx:key="index">
+        <swiper-item>
+          <view class="notice-item">
+            <image src="{{item.image}}" mode="aspectFit" class="notice-img" />
+            <text class="notice-text">{{item.text}}</text>
+          </view>
+        </swiper-item>
+      </block>
+    </swiper>
+</view>

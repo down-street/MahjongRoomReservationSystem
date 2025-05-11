@@ -1,0 +1,53 @@
+<!--pages/login/login.wxml-->
+
+
+<view>
+  <view class="login-block">
+    <!-- 提示信息 -->
+    <view class="login-title-block">
+      请先登录
+      <view class="login-title">
+        未注册手机号登录后将自动创建账号
+      </view>
+    </view>
+    <!-- 输入框 -->
+    <view class="login-input-block" style="display: flex; align-items: center; justify-content: space-between;">
+      <!-- 左侧：区号 + 输入框 -->
+      <view style="display: flex;">
+        <text style="font-size: 32rpx;">+86</text>
+        <input class="input" type="number" focus="true" maxlength="{{11}}" placeholder="请输入手机号"  value="{{identify}}" bindinput="updateIdentify" style="font-size: 32rpx; margin-left: 20rpx;" />
+      </view>
+    
+      <!-- 右侧：按钮 -->
+      <view class="send-code"  wx:if="{{method==0}}">
+        <view bindtap="changetologin" wx:if="{{resttime==0}}">发送验证码</view>
+        <view wx:if="{{resttime>0}}">{{resttime}}秒后可重发</view>
+      </view>
+    </view>
+    <view class="login-input-block" wx:if="{{method == 1}}">
+      <input class="input" type="code" focus="true" value="{{password}}" bindinput="updatepassword"
+        placeholder="请输入密码" />
+    </view>
+    <view class="login-input-block" wx:if="{{tag==1 && method == 0}}">
+      <input class="input" type="code" focus="true" value="{{vcode}}" bindinput="updatevcode"
+        placeholder="请输入验证码" />
+    </view>
+    <!-- 协议相关 -->
+    <!-- 按钮 -->
+    <view class="load-submit1" bindtap="login" wx:if="{{tag==1 || method==1}}">
+      登录
+    </view>
+    <!-- 更改登陆方式 -->
+    <view class="op">
+      <view class="agreement">
+        登录代表您已同意相关隐私政策
+      </view>
+      <view class="other-option" bindtap="changeloginmethod">
+        {{ method==1?'验证码登录':'密码登录' }}
+      </view>
+    </view>
+
+  </view>
+
+
+</view>

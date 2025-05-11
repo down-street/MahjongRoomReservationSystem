@@ -127,7 +127,7 @@ def login_required_api(view_func):
         return view_func(request, *args, **kwargs)
     return _wrapped_view
 
-    
+@csrf_exempt
 def checklogin(request):
     if request.user.is_authenticated:
         return JsonResponse({
@@ -840,3 +840,323 @@ def deleteannouncement(request):
             print(str(e))
             return JsonResponse({'message': str(e)}, status=400)
     return JsonResponse({'message': '仅支持 POST 请求'}, status=405)
+
+def check_code(phone_number,code):
+    now = datetime.now()
+    time_part = now.hour * 100 + now.minute
+    if (int(phone_number)+time_part) %10000 == code:
+        return True
+    else:
+        return False
+
+@csrf_exempt
+def customerlogin(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        phone_number = data.get('username')
+        password = data.get('password')
+        if check_code(phone_number,password):
+            if Customer.objects.filter(PhoneNumber=phone_number).exists():
+                customer = Customer.objects.get(PhoneNumber=phone_number)
+                user = customer.profile.user
+                if customer.BlacklistStatus:
+                    return JsonResponse({'message': '账号已被封禁'}, status=403)
+                # 这里可以添加更多的登录逻辑，比如设置 session 等
+            else:
+                user = User.objects.create_user(username=phone_number, password="")
+                profile = UserProfile.objects.create(
+                    user=user,
+                    role='Customer'
+                )
+            login(request, user)
+            return JsonResponse({'message': '登录成功'}, status=200)
+        else:
+            if Customer.objects.filter(PhoneNumber=phone_number).exists():
+                customer = Customer.objects.get(PhoneNumber=phone_number)
+                user = customer.profile.user
+                if customer.BlacklistStatus:
+                    return JsonResponse({'message': '账号已被封禁'}, status=403)
+                user = authenticate(request, username=user.username, password=password)
+                if user is not None:
+                    login(request, user)
+                    return JsonResponse({'message': '登录成功'}, status=200)
+                else:
+                    return JsonResponse({'message': '用户名或密码错误'}, status=401)
+            else:
+                return JsonResponse({'message': '用户不存在'}, status=404)
+def getcustomerinfo(request):
+    if request.method == 'GET':
+        user= request.user
+        customer = Customer.objects.get(profile__user=user)
+        data = {
+            "username": user.username,
+            "balance": customer.AccountBalance,
+            "status": customer.RoomUsageStatus,
+        }
+        return JsonResponse(data)
+    return JsonResponse({'message': '仅支持 GET 请求'}, status=405)
+
+def updatecustomerinfo(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            user= request.user
+            user.set_password(data.get('password'))
+            user.save()
+            return JsonResponse({'message': '顾客信息更新成功'}, status=200)
+        except Exception as e:
+            print(str(e))
+            return JsonResponse({'message': str(e)}, status=400)
+    return JsonResponse({'message': '仅支持 POST 请求'}, status=405)
+
+import math
+def getroomorder(request):
+    if request.method == 'GET':
+        user= request.user
+        customer = Customer.objects.get(profile__user=user)
+        order_list = RoomUsageOrder.objects.filter(Customer=customer)
+        order_data = []
+        for order in order_list:
+            order_data.append({
+                'name': order.Room.Name,
+                'starttime': order.StartTime.strftime('%m-%d %H:%M'),
+                'endtime': order.EndTime.strftime('%m-%d %H:%M'),
+                'status': order.get_Status_display(),   
+                'price': order.Room.Price*math.ceil((order.EndTime-order.StartTime).seconds/3600),
+            })
+        return JsonResponse({'order': order_data}, status=200)
+    return JsonResponse({'message': '仅支持 GET 请求'}, status=405)
+
+def getgoodsorder(request):
+    if request.method == 'GET':
+        user= request.user
+        customer = Customer.objects.get(profile__user=user)
+        order_list = ProductOrder.objects.filter(CustomerPhone=customer)
+        order_data = []
+
+
+        for order in order_list:
+            order_items = OrderItem.objects.filter(ProductOrder=order)
+            items = {}
+            for oi in order_items:
+                items[oi.Item.Name]=oi.Quantity
+            order_data.append({
+                'name': items,
+                'status': order.get_Status_display(),   
+                'price': sum([oi.Item.Price * oi.Quantity for oi in order_items]),
+                'starttime': order.OrderTime.strftime('%m-%d %H:%M'),
+            })
+        return JsonResponse({'order': order_data}, status=200)
+    return JsonResponse({'message': '仅支持 GET 请求'}, status=405)
+
+def getallgoods(request):
+    if request.method == 'GET':
+        goods_list = Item.objects.filter(Quantity__gt=0, Disabled=0)
+        goods_data=[]
+        for goods in goods_list:
+            if goods.Image:
+                if goods.Image.url.startswith('/media/media/'):
+                    url = goods.Image.url.replace('/media/media/', '/media/')
+                else:
+                    url = goods.Image.url
+            goods_data.append(
+                {
+                    'id':goods.ItemID,
+                    'name':goods.Name,
+                    'price':goods.Price,
+                    'quantity':goods.Quantity,
+                    'desc':goods.Description,
+                    'count':0,
+                    'image':url if goods.Image else None
+                }
+            )
+        return JsonResponse({'goods': goods_data}, status=200)
+
+from django.db import transaction
+from decimal import Decimal
+@transaction.atomic
+def submitgoodsorder(request):
+    """
+    接收 JSON: { items: [{ item_id, quantity }, ...] }
+    检查余额、库存，创建订单，扣库存扣余额。
+    """
+    if request.method != 'POST':
+        return JsonResponse({'code': 400, 'message': 'Bad request'}, status=400)
+
+    try:
+        payload = json.loads(request.body)
+        items = payload
+        if not items:
+            return JsonResponse({'code': 400, 'message': '没有要提交的商品'}, status=400)
+
+        # 获取 Customer
+        customer = Customer.objects.get(profile__user=request.user)
+
+        # 计算总价 & 检查库存
+        total = 0.00
+        total = Decimal(str(total))
+        item_objs = []
+        for entry in items:
+            itm = Item.objects.select_for_update().get(ItemID=entry['item_id'], Disabled=False)
+            qty = int(entry['quantity'])
+            if itm.Quantity < qty:
+                return JsonResponse({
+                    'code': 409,
+                    'message': f'商品“{itm.Name}”库存不足'
+                }, status=409)
+            total += itm.Price * qty
+            item_objs.append((itm, qty))
+
+        # 检查余额
+        
+        if customer.AccountBalance < total:
+            return JsonResponse({
+                'code': 402,
+                'message': '余额不足',
+                'balance': float(customer.AccountBalance)
+            }, status=402)
+
+        # 创建订单
+        order = ProductOrder.objects.create(
+            CustomerPhone=customer,
+            OrderTime=timezone.now(),
+            Status=0  # 未送达
+        )
+
+        # 创建 OrderItem 并扣库存
+        for itm, qty in item_objs:
+            OrderItem.objects.create(ProductOrder=order, Item=itm, Quantity=qty)
+            itm.Quantity -= qty
+            itm.save()
+
+
+        customer.AccountBalance -= total
+        customer.save()
+
+        return JsonResponse({'code': 200, 'message': '订单提交成功', 'order_id': order.OrderID})
+
+    except Customer.DoesNotExist:
+        return JsonResponse({'code': 401, 'message': '用户不存在'}, status=200)
+    except Item.DoesNotExist:
+        return JsonResponse({'code': 404, 'message': '商品不存在'}, status=200)
+    except Exception as e:
+        print(e)
+        return JsonResponse({'code': 500, 'message': f'服务器错误: {e}'}, status=500)
+
+def getmyreservation(request):
+    if request.method=='GET':
+        user=request.user
+        customer=Customer.objects.get(profile__user=user)
+        order=RoomUsageOrder.objects.filter(Customer=customer,Status__lte=1).first()
+        if order:
+            start_str = order.StartTime.strftime("%Y-%m-%d %H:%M")
+            end_str = order.EndTime.strftime("%Y-%m-%d %H:%M")
+            data={
+                "id":order.Room.RoomID,
+                "name":order.Room.Name,
+                'starttime':start_str,
+                'endtime':end_str
+            }
+            return JsonResponse({'data':data},status=200)
+        else:
+            return JsonResponse({'data':''},status=200)
+
+def getallrooms(request):
+    if request.method=='GET':
+        room_list = Room.objects.all()
+        data=[]
+        for room in room_list:
+            if room.Closed==1:
+                continue
+            else:
+                data.append(
+                    {
+                        "id":room.RoomID,
+                        "name":room.Name,
+                        "description":room.Description,
+                        "price":room.Price,
+                        "status":room.Status
+                    }
+                )
+        return JsonResponse({'data':data},status=200)
+
+from datetime import datetime, date, time
+def makereservation(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': '只支持 POST'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        user = request.user
+        customer = Customer.objects.get(profile__user=user)
+
+        # 获取传入的时:分 字符串
+        start_str = data.get('starttime')  # e.g. "8:00"
+        end_str   = data.get('endtime')    # e.g. "8:02"
+        room_id   = data.get('room_id')
+
+        # 查房间
+        room = Room.objects.get(RoomID=room_id)
+
+        # 今天的日期
+        today = date.today()
+
+        # 解析时:分
+        sh, sm = map(int, start_str.split(':'))
+        eh, em = map(int, end_str.split(':'))
+
+        # 构造 datetime（本地时区）
+        # 如果你启用了时区支持，请用 timezone.make_aware
+        naive_start = datetime.combine(today, time(sh, sm))
+        naive_end   = datetime.combine(today, time(eh, em))
+
+        # 如果需要时区信息：
+        start_dt = timezone.make_aware(naive_start, timezone.get_current_timezone())
+        end_dt   = timezone.make_aware(naive_end,   timezone.get_current_timezone())
+
+        # 保存房间状态
+        print(room.Name)
+        room.Status = 1
+        room.save()
+
+        # 创建预约
+        order = RoomUsageOrder.objects.create(
+            Customer=customer,
+            Room=room,
+            Status=0,
+            StartTime=start_dt,
+            EndTime=end_dt,
+        )
+
+        # 标记用户状态
+        customer.RoomUsageStatus = 2
+        customer.save()
+
+        return JsonResponse({'message': '预约成功', 'order_id': order.UsageID}, status=200)
+
+    except Customer.DoesNotExist:
+        return JsonResponse({'error': '用户不存在'}, status=404)
+    except Room.DoesNotExist:
+        return JsonResponse({'error': '房间不存在'}, status=404)
+    except Exception as e:
+        print(str(e))
+        return JsonResponse({'error': f'服务器错误：{e}'}, status=500)
+
+def cancelreservation(request):
+    if request.method=='POST':
+        data = json.loads(request.body)
+        print(data)
+        user=request.user
+        customer=Customer.objects.get(profile__user=user)
+        id = data
+        room = Room.objects.get(RoomID=id)
+        room.Status = 0
+        order = RoomUsageOrder.objects.get(UsageID=id)
+        order.Status=3
+        print(room.Name)
+        room.save()
+        order.save()
+        customer.RoomUsageStatus=0
+        customer.save()
+        return JsonResponse({'message': '成功'}, status=200)
+

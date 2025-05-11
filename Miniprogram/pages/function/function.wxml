@@ -1,0 +1,50 @@
+<view class="page-container">
+  <!-- 已预约 -->
+  <view wx:if="{{currentReservation}}" class="reservation-banner">
+    <view class="reservation-info">
+      <text class="reservation-room">您已预约：{{currentReservation.name}}</text>
+      <text class="reservation-time">时间：{{currentReservation.starttime}} ~ {{currentReservation.endtime}}</text>
+    </view>
+    <button class="cancel-button" bindtap="cancelReservation">取消预约</button>
+  </view>
+  
+
+  <!-- 棋牌室列表 -->
+  <block wx:for="{{rooms}}" wx:key="id">
+    <view class="room-card {{item.statusClass}}" bindtap="openReservationPopup" data-room="{{item}}">
+      <view class="room-name">{{item.name}}</view>
+      <view class="room-desc">{{item.description}}</view>
+      <view class="room-status">当前状态：{{item.statusText}}</view>
+    </view>
+  </block>
+
+  <!-- 弹窗：时间段选择 -->
+  <view wx:if="{{showPopup}}" class="popup-overlay">
+    <view class="popup">
+      <view class="popup-title">选择预约时间段</view>
+      
+      <view class="time-picker-group">
+        <picker mode="time" value="{{selectedStart}}" bindchange="onStartTimeChange">
+          <view class="picker-label">开始时间：<text class="time-value">{{selectedStart}}</text></view>
+        </picker>
+      
+        <picker mode="time" value="{{selectedEnd}}" bindchange="onEndTimeChange">
+          <view class="picker-label">结束时间：<text class="time-value">{{selectedEnd}}</text></view>
+        </picker>
+      </view>
+      
+  
+      <!-- 时间段预览 -->
+      <view class="time-preview">
+        <text>预约时长：</text>
+        <text class="preview-value">{{duration}}</text>
+      </view>
+  
+      <view class="popup-buttons">
+        <button class="confirm-btn" bindtap="submitReservation">确认预约</button>
+        <button class="cancel-btn" bindtap="closePopup">取消</button>
+      </view>
+    </view>
+  </view>
+  
+</view>

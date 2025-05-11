@@ -1,0 +1,28 @@
+<!--pages/center/settings/settings.wxml-->
+
+<view>
+
+    <view class="card" style="margin-top: 20rpx; width: 90%;">
+        <view class="items" slot="content">
+            <view class="line-item" bindtap="edit">
+                修改账号信息
+            </view>
+        </view>
+    </view>
+    <view class="card" style="margin-top: 30rpx; width: 90%;">
+        <view class="items" slot="content">
+            <view class="line-item">
+                帮助与反馈
+            </view>
+            <view class="line-item">
+                隐私政策
+            </view>
+            <view class="line-item">
+                关于
+            </view>
+        </view>
+    </view>
+
+    <view class="logout" bindtap="logout"> 退出登录 </view>
+
+</view>

@@ -68,6 +68,23 @@ urlpatterns = [
     path('insertannouncement/', views.insertannouncement, name='insertannouncement'),
     path('updateannouncement/', views.updateannouncement, name='updateannouncement'),
     path('deleteannouncement/', views.deleteannouncement, name='deleteannouncement'),
+
+
+
+
+    path('login/', views.customerlogin, name='login'),
+    path('getcustomerinfo/', views.getcustomerinfo, name='getcustomerinfo'),
+    path('updatecustomerinfo/', views.updatecustomerinfo, name='updatecustomerinfo'),
+    path('getroomorder/', views.getroomorder, name='getroomorder'),
+    path('getgoodsorder/', views.getgoodsorder, name='getgoodsorder'),
+    path('getallgoods/',views.getallgoods,name='getallgoods'),
+    path('submitgoodsorder/',views.submitgoodsorder,name='submitgoodsorder'),
+
+    path('getmyreservation/',views.getmyreservation,name='getmyreservation'),
+    path('getallrooms/',views.getallrooms,name='getallrooms'),
+    path('makereservation/',views.makereservation,name='makereservation'),
+    path('cancelreservation/',views.cancelreservation,name='cancelreservation'),
+
 ]
 
 if settings.DEBUG:

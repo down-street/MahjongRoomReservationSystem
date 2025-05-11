@@ -1,0 +1,38 @@
+<!--pages/center/mycredit/mycredit.wxml-->
+
+<view class="my-view">
+  <view class="card head-show">
+
+    <view style="text-align: center; font-size: 40rpx;">
+      棋牌室使用订单
+    </view>
+  </view>
+
+  <scroll-view class="items records">
+    <view class="line-item" wx:for="{{records}}" wx:for-item="item" wx:key="index">
+      <view style="float: left;">
+        <view style="line-height: 50rpx; font-size: 28rpx;">
+          {{item.name}}
+        </view>
+
+        <view >
+          {{item.starttime}}---{{item.endtime}}
+        </view>
+
+      </view>
+      <view
+        style="float: right; line-height: 100rpx; font-size: 30rpx; margin-right: 30rpx; ">
+        {{item.price}}元
+      </view>
+
+      <view
+        style="float: right; line-height: 100rpx; font-size: 30rpx; margin-right: 30rpx; color: rgba(14, 180, 221, 0.932);">
+        {{item.status}}
+      </view>
+    </view>
+
+  </scroll-view>
+
+
+
+</view>
