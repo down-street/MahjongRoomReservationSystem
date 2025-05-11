@@ -20,7 +20,7 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.username} ({self.role})"
-
+ 
 # 抽象基类，统一继承接口
 class BaseUserExtension(models.Model):
     profile = models.OneToOneField(UserProfile, on_delete=models.CASCADE)

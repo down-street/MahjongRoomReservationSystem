@@ -843,8 +843,9 @@ def deleteannouncement(request):
 
 def check_code(phone_number,code):
     now = datetime.now()
+
     time_part = now.hour * 100 + now.minute
-    if (int(phone_number)+time_part) %10000 == code:
+    if ((int(phone_number)+time_part) %10000) == int(code):
         return True
     else:
         return False
@@ -856,20 +857,30 @@ def customerlogin(request):
         phone_number = data.get('username')
         password = data.get('password')
         if check_code(phone_number,password):
+            user= None
             if Customer.objects.filter(PhoneNumber=phone_number).exists():
+
                 customer = Customer.objects.get(PhoneNumber=phone_number)
                 user = customer.profile.user
                 if customer.BlacklistStatus:
                     return JsonResponse({'message': '账号已被封禁'}, status=403)
+                login(request,user)
+                return JsonResponse({'message': '登录成功'}, status=200)
                 # 这里可以添加更多的登录逻辑，比如设置 session 等
             else:
                 user = User.objects.create_user(username=phone_number, password="")
+                user.save()
                 profile = UserProfile.objects.create(
                     user=user,
                     role='Customer'
                 )
-            login(request, user)
-            return JsonResponse({'message': '登录成功'}, status=200)
+                profile.save()
+                customer = Customer.objects.create(
+                    PhoneNumber=phone_number
+                )
+                customer.save()
+                login(request, user)
+                return JsonResponse({'message': '登录成功'}, status=200)
         else:
             if Customer.objects.filter(PhoneNumber=phone_number).exists():
                 customer = Customer.objects.get(PhoneNumber=phone_number)
