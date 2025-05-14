@@ -346,7 +346,7 @@ def updatestaff(request):
         except Staff.DoesNotExist:
             return JsonResponse({'message': '员工不存在'}, status=404)
         except Exception as e:
-            #print(str(e))
+            print(str(e))
             return JsonResponse({'message': str(e)}, status=400)
     return JsonResponse({'message': '仅支持 PUT 请求'}, status=405)
 def updatecustomer(request):
@@ -842,9 +842,12 @@ def deleteannouncement(request):
     return JsonResponse({'message': '仅支持 POST 请求'}, status=405)
 
 def check_code(phone_number,code):
+    if isinstance(code,(int))==False:
+        return False
     now = datetime.now()
 
     time_part = now.hour * 100 + now.minute
+    print(code)
     if ((int(phone_number)+time_part) %10000) == int(code):
         return True
     else:
