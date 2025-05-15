@@ -22,13 +22,15 @@ Page({
     }
     if(idx=='balancetop')
     {
-
+      let url= '/pages/center/balancetop/balancetop';
+      wx.navigateTo({
+        url: url,
+      });
     }
     if(idx=='goodsorder')
     {
       let url = '/pages/center/goodsorder/goodsorder';
-      // 进入个人资料
-      wx.redirectTo({
+      wx.navigateTo({
         url: url,
       });
     }
@@ -48,7 +50,7 @@ Page({
         });
       } else {
         wx.navigateTo({
-          url: '/pages/center/login',
+          url: '/pages/center/login/login',
         });
       }
     });
@@ -63,7 +65,7 @@ Page({
       api.checklogin().then(data => {
         console.log(data)
         if (data.statusCode == 200) {
-          let url = '/pages/center/';
+          let url = '/pages/center/center';
           // 进入个人资料 
           wx.navigateTo({
             url: url,
@@ -124,11 +126,25 @@ Page({
    * 页面相关事件处理函数--监听用户下拉动作
    */
   onPullDownRefresh() {
-    if (!this.data.hasLogin) {
-      wx.stopPullDownRefresh();
-      return
-    }
-    api.getuserinfo();
+    api.getcustomerinfo().then(data=>{
+      if(data.data.status==1)
+      {
+        data.data.status='正在使用'
+      }
+      if(data.data.status==2)
+      {
+        data.data.status='已预约'
+      }
+      if(data.data.status==0)
+      {
+        data.data.status='未使用'
+      }
+      this.setData({
+        nickname: data.data.username,
+        balance: data.data.balance,
+        status: data.data.status
+      });
+    });
   },
 
   /**

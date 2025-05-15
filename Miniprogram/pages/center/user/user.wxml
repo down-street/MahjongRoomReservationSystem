@@ -1,2 +1,11 @@
-<!--pages/center/user/user.wxml-->
-<text>pages/center/user/user.wxml</text>
+<view class="page">
+  <view class="card">
+    <view class="title">修改密码</view>
+
+    <input class="input" password placeholder="请输入新密码" bindinput="onPasswordInput" value="{{password}}" />
+
+    <input class="input" password placeholder="请再次输入新密码" bindinput="onConfirmInput" value="{{confirmPassword}}" />
+
+    <button class="btn" bindtap="onSubmit">确认修改</button>
+  </view>
+</view>

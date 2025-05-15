@@ -1,15 +1,15 @@
 {
     "pages": [
         "pages/index/index",
-        "pages/function/function",
+        "pages/purchase/purchase",
         "pages/center/center",
         "pages/center/login/login",
         "pages/center/settings/settings",
-        "pages/center/mycredit/mycredit",
         "pages/center/user/user",
         "pages/goods/goods",
-        "pages/center/goodsorder/goodsorder"
-
+        "pages/center/goodsorder/goodsorder",
+        "pages/center/mycredit/mycredit",
+        "pages/center/balancetop/balancetop"
     ],
     "window": {
         "navigationBarBackgroundColor": "#fff",
@@ -30,10 +30,10 @@
                 "selectedIconPath": "./resources/images/tabBar/_index.png"
             },
             {
-                "pagePath": "pages/function/function",
+                "pagePath": "pages/purchase/purchase",
                 "text": "预约",
-                "iconPath": "./resources/images/tabBar/function.png",
-                "selectedIconPath": "./resources/images/tabBar/_function.png"
+                "iconPath": "./resources/images/tabBar/purchase.png",
+                "selectedIconPath": "./resources/images/tabBar/_purchase.png"
             },
             {
                 "pagePath": "pages/goods/goods",

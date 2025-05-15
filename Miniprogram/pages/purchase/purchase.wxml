@@ -1,13 +1,20 @@
 <view class="page-container">
   <!-- 已预约 -->
-  <view wx:if="{{currentReservation}}" class="reservation-banner">
+  <view class="reservation-banner">
     <view class="reservation-info">
-      <text class="reservation-room">您已预约：{{currentReservation.name}}</text>
-      <text class="reservation-time">时间：{{currentReservation.starttime}} ~ {{currentReservation.endtime}}</text>
+      <view wx:if="{{currentstatus==0}}"><text class="reservation-room">您已预约：</text>
+      </view>
+      <view wx:if="{{currentstatus==1}}"><text class="reservation-room">您正在使用：</text>
+      </view> 
+      <view wx:if="{{currentstatus==2}}"><text class="reservation-room">您尚未预定房间，请先预约</text></view>    
+      <view wx:if="{{currentstatus<=1}}">{{currentReservation.name}}</view>
+      <view wx:if="{{currentstatus<=1}}"><text class="reservation-time">时间：{{currentReservation.starttime}} ~ {{currentReservation.endtime}}</text></view>
+
     </view>
-    <button class="cancel-button" bindtap="cancelReservation">取消预约</button>
+    <view wx:if="{{currentstatus==0}}"><button class="cancel-button" bindtap="cancelReservation">取消预约</button></view>
+    
   </view>
-  
+
 
   <!-- 棋牌室列表 -->
   <block wx:for="{{rooms}}" wx:key="id">
@@ -22,29 +29,29 @@
   <view wx:if="{{showPopup}}" class="popup-overlay">
     <view class="popup">
       <view class="popup-title">选择预约时间段</view>
-      
+
       <view class="time-picker-group">
         <picker mode="time" value="{{selectedStart}}" bindchange="onStartTimeChange">
           <view class="picker-label">开始时间：<text class="time-value">{{selectedStart}}</text></view>
         </picker>
-      
+
         <picker mode="time" value="{{selectedEnd}}" bindchange="onEndTimeChange">
           <view class="picker-label">结束时间：<text class="time-value">{{selectedEnd}}</text></view>
         </picker>
       </view>
-      
-  
+
+
       <!-- 时间段预览 -->
       <view class="time-preview">
         <text>预约时长：</text>
         <text class="preview-value">{{duration}}</text>
       </view>
-  
+
       <view class="popup-buttons">
         <button class="confirm-btn" bindtap="submitReservation">确认预约</button>
         <button class="cancel-btn" bindtap="closePopup">取消</button>
       </view>
     </view>
   </view>
-  
+
 </view>

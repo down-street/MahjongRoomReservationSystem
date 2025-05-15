@@ -28,8 +28,8 @@ Page({
     selectedEnd: '09:00',    // 示例结束时间
     duration: '1小时'  ,      // 默认时长
     duration_hour:1,
-    duration_minute:0
-
+    duration_minute:0,
+    currentstatus:null
     // currentReservation: {
     //   room: {
     //     id: 1,
@@ -44,6 +44,18 @@ Page({
 
   onLoad() {
         // 添加样式类和文字
+        api.checklogin().then(data=>
+          {
+            console.log(data.data)
+            if(data.statusCode!=200)
+            {
+              wx.reLaunch({
+                url: '/pages/center/login/login',
+              })
+            }
+          }
+          
+        )
         this.fetchReservation()
         this.fetchRooms()
   },
@@ -101,11 +113,14 @@ Page({
       {
         if(data.data.data)
         {
+        
             this.setData({
               currentReservation:data.data.data,
+              currentstatus:data.data.data.status
             }
               
             )
+            console.log(this.data.currentstatus)
         }
         else
         {
@@ -147,11 +162,16 @@ Page({
   },
 
   openReservationPopup(e) {
-    if (this.data.currentReservation) {
-      wx.showToast({ title: "您已有预约，请先取消", icon: "none" });
+    if (this.data.currentstatus<2) {
+      wx.showToast({ title: "您正在使用其他房间或已有预约", icon: "none" });
       return;
     }
     const room = e.currentTarget.dataset.room
+    if(room.status!=0)
+    {
+      wx.showToast({ title: "请选择空闲的房间", icon: "none" });
+      return;
+    }
     this.setData({ showPopup: true, selectedRoom: room })
   },
 
@@ -189,8 +209,12 @@ Page({
       icon: 'success',
       duration: 1500
     });
+
     this.fetchRooms();
-    this.fetchReservation();
+    this.fetchReservation();    
+    wx.reLaunch({
+      url: '/pages/purchase/purchase',
+    })
   },
 
   cancelReservation() {
@@ -203,7 +227,10 @@ Page({
         console.log(this.data.currentReservation)
         if (res.confirm) {
           // 调接口取消预约
-          api.cancelreservation(this.data.currentReservation.id)
+          let dt={};
+          dt['room_id']=this.data.currentReservation.room_id;
+          dt['id']=this.data.currentReservation.id;
+          api.cancelreservation(dt)
             .then(() => {
               wx.showToast({
                 title: '已取消预约',
@@ -214,6 +241,10 @@ Page({
               this.setData({ currentReservation: null, showPopup: false }, () => {
                 this.fetchRooms();
               });
+              console.log('change')
+              wx.reLaunch({
+                url: '/pages/purchase/purchase',
+              })
             })
             .catch(err => {
               console.error('取消失败', err);

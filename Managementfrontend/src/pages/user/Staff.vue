@@ -113,7 +113,7 @@ export default {
             formIdx: -1,
             // 对话框数据
             addform: {},
-            editform: {},
+            editform: {'role':'staff'},
             formLabelWidth: "80px",
         };
     },
@@ -177,6 +177,7 @@ export default {
         handleEdit(index, row) {
             this.editdialogFormVisible = true;
             this.editform = { ...row };
+            this.editform['role']='staff'
         },
         handleDelete(index, row) {
             let that = this;

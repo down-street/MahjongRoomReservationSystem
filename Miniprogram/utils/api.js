@@ -21,6 +21,10 @@ class Api {
     getallrooms=()=>request.get('/getallrooms/')
     makereservation=(data)=>request.post('/makereservation/',data)
     cancelreservation=(room_id)=>request.post('/cancelreservation/',room_id)
+
+    getannouncement=()=>request.get('/getannouncement/')
+
+    topbalance=(amount)=>request.post('/topbalance/',amount)
 }
 const api = new Api()
 export default api

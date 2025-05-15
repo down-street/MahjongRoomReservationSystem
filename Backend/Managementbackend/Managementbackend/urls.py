@@ -50,6 +50,7 @@ urlpatterns = [
     path('enableroom/', views.enableroom,name='enableroom'),
 
     path('getallgoods/', views.getallgoods,name='getallgoods'),
+    path('getallgoodsstaff/', views.getallgoodsstaff,name='getallgoodsstaff'),
     path('insertgoods/', views.insertgoods,name='insertgoods'),
     path('updategoods/', views.updategoods,name='updategoods'),
     path('blockgoods/', views.blockgoods,name='blockgoods'),
@@ -84,7 +85,8 @@ urlpatterns = [
     path('getallrooms/',views.getallrooms,name='getallrooms'),
     path('makereservation/',views.makereservation,name='makereservation'),
     path('cancelreservation/',views.cancelreservation,name='cancelreservation'),
-
+    path('getannouncement/',views.getannouncement,name='getannouncement'),
+    path('topbalance/',views.topbalance,name='topbalance'),
 ]
 
 if settings.DEBUG:

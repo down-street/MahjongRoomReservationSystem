@@ -17,7 +17,7 @@
                     " :stripe="true" style="width: calc(100% - 30px)" @selection-change="handleSelectionChange">
                     <el-table-column fixed prop="name" label="商品名称" width="140">
                     </el-table-column>
-                    <el-table-column prop="description" label="描述" width="170">
+                    <el-table-column prop="desc" label="描述" width="170">
                     </el-table-column>
                     <el-table-column prop="price" label="价格" width="70">
                     </el-table-column>
@@ -56,7 +56,7 @@
                     <el-input class="inputbar" v-model="editform.name" autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="描述" :label-width="formLabelWidth">
-                    <el-input class="inputbar" v-model="editform.description" autocomplete="off"></el-input>
+                    <el-input class="inputbar" v-model="editform.desc" autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="价格" :label-width="formLabelWidth">
                     <el-input class="inputbar" v-model="editform.price" autocomplete="off"></el-input>
@@ -89,7 +89,7 @@
                     <el-input class="inputbar" v-model="addform.name" autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="描述" :label-width="formLabelWidth">
-                    <el-input class="inputbar" v-model="addform.description" autocomplete="off"></el-input>
+                    <el-input class="inputbar" v-model="addform.desc" autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="价格" :label-width="formLabelWidth">
                     <el-input class="inputbar" v-model="addform.price" autocomplete="off"></el-input>
@@ -173,7 +173,7 @@ export default {
             this.$api.GoodsService.updategoods(this.editform).then((data) => {
                 Message.success("修改成功");
                 this.editdialogFormVisible = false;
-                this.getallgoods();
+                this.getallgoodsstaff();
             });
 
         },
@@ -182,13 +182,13 @@ export default {
             this.$api.GoodsService.insertgoods(this.addform).then((data) => {
                 Message.success("添加成功");
                 this.adddialogFormVisible = false;
-                this.getallgoods();
+                this.getallgoodsstaff();
             });
         },
         // 获取所有用户
-        getallgoods() {
+        getallgoodsstaff() {
             this.$api.AuthService.checklogin();
-            this.$api.GoodsService.getallgoods().then((data) => {
+            this.$api.GoodsService.getallgoodsstaff().then((data) => {
                 this.list = data.goods;
                 this.list.forEach((item) => {
                     if (item.disabled == 1) {
@@ -210,7 +210,7 @@ export default {
         // 页面改版
         pageChange(val) {
             this.pageIdx = val - 1;
-            this.getallgoods();
+            this.getallgoodsstaff();
         },
         // 选择变化
         handleSelectionChange(val) {
@@ -231,9 +231,9 @@ export default {
                 .then((_) => {
                     console.log("yes");
                     //
-                    this.$api.GoodsService.blockgoods(row.goods_id).then((data) => {
+                    this.$api.GoodsService.blockgoods(row.id).then((data) => {
                         Message.success("下架成功");
-                        that.getallgoods();
+                        that.getallgoodsstaff();
                     });
                     done();
                 })
@@ -246,9 +246,9 @@ export default {
                 .then((_) => {
                     console.log("yes");
                     //
-                    this.$api.GoodsService.enablegoods(row.goods_id).then((data) => {
+                    this.$api.GoodsService.enablegoods(row.id).then((data) => {
                         Message.success("上架成功");
-                        that.getallgoods();
+                        that.getallgoodsstaff();
                     });
                     done();
                 })
@@ -259,7 +259,7 @@ export default {
     created() { },
     //生命周期 - 挂载完成（可以访问DOM元素）
     mounted() {
-        setTimeout(() => this.getallgoods(), 300);
+        setTimeout(() => this.getallgoodsstaff(), 300);
     },
     beforeCreate() { }, //生命周期 - 创建之前
     beforeMount() { }, //生命周期 - 挂载之前

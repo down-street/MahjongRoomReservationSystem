@@ -1,66 +1,42 @@
-// pages/center/user/user.js
+const {
+  default: api
+} = require("../../../utils/api")
 Page({
-
-    /**
-     * 页面的初始数据
-     */
     data: {
-
+      password: '',
+      confirmPassword: ''
     },
-
-    /**
-     * 生命周期函数--监听页面加载
-     */
-    onLoad(options) {
-
+  
+    onPasswordInput(e) {
+      this.setData({ password: e.detail.value });
     },
-
-    /**
-     * 生命周期函数--监听页面初次渲染完成
-     */
-    onReady() {
-
+  
+    onConfirmInput(e) {
+      this.setData({ confirmPassword: e.detail.value });
     },
-
-    /**
-     * 生命周期函数--监听页面显示
-     */
-    onShow() {
-
-    },
-
-    /**
-     * 生命周期函数--监听页面隐藏
-     */
-    onHide() {
-
-    },
-
-    /**
-     * 生命周期函数--监听页面卸载
-     */
-    onUnload() {
-
-    },
-
-    /**
-     * 页面相关事件处理函数--监听用户下拉动作
-     */
-    onPullDownRefresh() {
-
-    },
-
-    /**
-     * 页面上拉触底事件的处理函数
-     */
-    onReachBottom() {
-
-    },
-
-    /**
-     * 用户点击右上角分享
-     */
-    onShareAppMessage() {
-
+  
+    onSubmit() {
+      const { password, confirmPassword } = this.data;
+  
+      if (!password || !confirmPassword) {
+        wx.showToast({ title: '请填写密码', icon: 'none' });
+        return;
+      }
+  
+  
+      if (password !== confirmPassword) {
+        wx.showToast({ title: '两次输入不一致', icon: 'none' });
+        return;
+      }
+  
+      // 模拟请求
+      wx.showToast({ title: '修改成功', icon: 'success' });
+      setTimeout(() => {
+        api.updatecustomerinfo(password);
+        wx.reLaunch({
+          url: '/pages/center/center',
+        })
+      }, 1000);
     }
-})
+  });
+  

@@ -70,14 +70,14 @@
                     <el-input class="inputbar" v-model="addform.content" autocomplete="off"></el-input>
                 </el-form-item>
                 <!-- 上传图片模块 -->
-                <el-form-item label="商品图片" :label-width="formLabelWidth">
+                <el-form-item label="公告图片" :label-width="formLabelWidth">
                     <el-upload class="upload-demo" action="/api/upload/" :on-success="handleImageSuccessadd"
                         :show-file-list="false" accept="image/*">
                         <el-button size="small" type="primary">选择图片</el-button>
                     </el-upload>
                     <!-- <el-button size="small" type="success" @click="submitUpload">上传图片</el-button> -->
                     <div v-if="addform.imageUrl" class="image-preview">
-                        <img :src="addform.imageUrl" alt="商品图片" style="width: 100px; height: 100px; margin-top: 10px;">
+                        <img :src="addform.imageUrl" alt="公告图片" style="width: 100px; height: 100px; margin-top: 10px;">
                     </div>
                 </el-form-item>
 

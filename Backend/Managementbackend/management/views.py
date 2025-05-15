@@ -25,6 +25,10 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
 import os 
+
+def updateinfo():
+    #update info by minutes
+    return
 # 顾客登录
 def customer_login(request):
     if request.method == "POST":
@@ -129,6 +133,7 @@ def login_required_api(view_func):
 
 @csrf_exempt
 def checklogin(request):
+    updateinfo()
     if request.user.is_authenticated:
         return JsonResponse({
             'message': '已登录',
@@ -546,8 +551,11 @@ def enableroom(request):
 
 
 def getallgoods(request):
+    print(goods_list)
     if request.method == 'GET':
+        print('true')
         goods_list = Item.objects.all()
+        
         goods_data = []
         url = None
         for goods in goods_list:
@@ -565,6 +573,7 @@ def getallgoods(request):
                 'image': url if goods.Image else None,
                 'disabled':  "已下架" if goods.Disabled == True else "在售",
             })
+        print(goods_data)
         return JsonResponse({'goods': goods_data}, status=200)
     return JsonResponse({'message': '仅支持 GET 请求'}, status=405)
 
@@ -597,12 +606,14 @@ def updategoods(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            goods_id = data.get('goods_id')
+            print(data)
+            goods_id = data.get('id')
             name = data.get('name')
             price = data.get('price')
             quantity = data.get('quantity')
-            description = data.get('description')
+            description = data.get('desc')
             image = data.get('imageUrl')  # Assuming you handle file upload separately
+            print(goods_id)
             goods = Item.objects.get(ItemID=goods_id)
             goods.Name = name
             goods.Price = price
@@ -622,8 +633,10 @@ def blockgoods(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
+            print(data)
             goods_id = data
             goods = Item.objects.get(ItemID=goods_id)
+            print(goods.Name)
             goods.Disabled= 1
             goods.save()
             return JsonResponse({'message': '商品删除成功'}, status=200)
@@ -725,7 +738,10 @@ def successcleanorder(request):
             cleanorder_id = data
             cleanorder = RoomCleaningOrder.objects.get(CleaningID=cleanorder_id)
             cleanorder.Status = 1
+            room = cleanorder.RoomID
+            room.Status=0
             cleanorder.save()
+            room.save()
             return JsonResponse({'message': '清洁订单成功'}, status=200)
         except RoomCleaningOrder.DoesNotExist:
             return JsonResponse({'message': '清洁订单不存在'}, status=404)
@@ -842,12 +858,14 @@ def deleteannouncement(request):
     return JsonResponse({'message': '仅支持 POST 请求'}, status=405)
 
 def check_code(phone_number,code):
-    if isinstance(code,(int))==False:
+    if str.isdigit(code)==False:
         return False
+    
     now = datetime.now()
 
-    time_part = now.hour * 100 + now.minute
-    print(code)
+    time_part = ((now.hour+8)%24) * 100 + now.minute
+    print(time_part)
+    print(code,(int(phone_number)+time_part) %10000)
     if ((int(phone_number)+time_part) %10000) == int(code):
         return True
     else:
@@ -913,9 +931,9 @@ def getcustomerinfo(request):
 def updatecustomerinfo(request):
     if request.method == 'POST':
         try:
-            data = json.loads(request.body)
+            data=request.body
             user= request.user
-            user.set_password(data.get('password'))
+            user.set_password(data)
             user.save()
             return JsonResponse({'message': '顾客信息更新成功'}, status=200)
         except Exception as e:
@@ -964,6 +982,7 @@ def getgoodsorder(request):
     return JsonResponse({'message': '仅支持 GET 请求'}, status=405)
 
 def getallgoods(request):
+    
     if request.method == 'GET':
         goods_list = Item.objects.filter(Quantity__gt=0, Disabled=0)
         goods_data=[]
@@ -980,11 +999,41 @@ def getallgoods(request):
                     'price':goods.Price,
                     'quantity':goods.Quantity,
                     'desc':goods.Description,
+                    'disabled':'上架中' if goods.Disabled == 0 else  '已下架',
                     'count':0,
                     'image':url if goods.Image else None
                 }
             )
+        print(goods_data)
         return JsonResponse({'goods': goods_data}, status=200)
+    return JsonResponse({'goods': goods_data}, status=404)
+
+def getallgoodsstaff(request):
+    
+    if request.method == 'GET':
+        goods_list = Item.objects.all()
+        goods_data=[]
+        for goods in goods_list:
+            if goods.Image:
+                if goods.Image.url.startswith('/media/media/'):
+                    url = goods.Image.url.replace('/media/media/', '/media/')
+                else:
+                    url = goods.Image.url
+            goods_data.append(
+                {
+                    'id':goods.ItemID,
+                    'name':goods.Name,
+                    'price':goods.Price,
+                    'quantity':goods.Quantity,
+                    'desc':goods.Description,
+                    'disabled':'上架中' if goods.Disabled == 0 else  '已下架',
+                    'count':0,
+                    'image':url if goods.Image else None
+                }
+            )
+        print(goods_data)
+        return JsonResponse({'goods': goods_data}, status=200)
+    return JsonResponse({'goods': goods_data}, status=404)
 
 from django.db import transaction
 from decimal import Decimal
@@ -1066,14 +1115,18 @@ def getmyreservation(request):
             start_str = order.StartTime.strftime("%Y-%m-%d %H:%M")
             end_str = order.EndTime.strftime("%Y-%m-%d %H:%M")
             data={
-                "id":order.Room.RoomID,
+                "id":order.UsageID,
+                'room_id':order.Room.RoomID,
                 "name":order.Room.Name,
                 'starttime':start_str,
-                'endtime':end_str
+                'endtime':end_str,
+                'status':order.Status
             }
             return JsonResponse({'data':data},status=200)
         else:
-            return JsonResponse({'data':''},status=200)
+            data={}
+            data['status']=2
+            return JsonResponse({'data':data},status=200)
 
 def getallrooms(request):
     if request.method=='GET':
@@ -1159,18 +1212,46 @@ def makereservation(request):
 def cancelreservation(request):
     if request.method=='POST':
         data = json.loads(request.body)
-        print(data)
+        
         user=request.user
         customer=Customer.objects.get(profile__user=user)
-        id = data
-        room = Room.objects.get(RoomID=id)
+        room_id = data.get('room_id')
+        id=data.get('id')
+        room = Room.objects.get(RoomID=room_id)
         room.Status = 0
         order = RoomUsageOrder.objects.get(UsageID=id)
         order.Status=3
         print(room.Name)
+        print(order)
         room.save()
         order.save()
         customer.RoomUsageStatus=0
         customer.save()
         return JsonResponse({'message': '成功'}, status=200)
 
+
+def getannouncement(request):
+    if request.method=='GET':
+        announcement_list=Announcement.objects.all()
+        return_data=[]
+        for announcement in announcement_list:
+            return_data.append(
+                {
+                    'image': announcement.Image.url[6:] if announcement.Image else '',
+                    'text':announcement.Content
+                }
+            )
+        return JsonResponse({'data':return_data}, status=200)
+
+def topbalance(request):
+    if request.method=='POST':
+        data = json.loads(request.body)
+        amount = data
+        print(amount)
+        user = request.user
+        if user == None:
+            return JsonResponse({'message':'loginfirst'}, status=405)
+        customer = Customer.objects.get(profile__user=user)
+        customer.AccountBalance+=int(amount)
+        customer.save()
+        return JsonResponse({'message':'success'}, status=200)

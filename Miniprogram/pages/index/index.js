@@ -1,5 +1,7 @@
 // index.js
-
+const {
+  default: api
+} = require("../../utils/api");
 
 // 获取应用实例
 const app = getApp()
@@ -17,13 +19,26 @@ Page({
         },
         {
           image: 'https://picsum.photos/id/14/800/600',
-          text: '感谢您的支持，祝您游戏愉快！'
+          text: '感谢您的支持，祝您愉快！'
         }
       ]
     },
 
     onLoad() {
-
+      
+      api.getannouncement().then(data => {
+        console.log(data.data.data)
+        const updatedNotices = data.data.data.map(item => {
+          return {
+            ...item,
+            image: item.image?'http://localhost:8000' + item.image:'https://photo.16pic.com/00/93/62/16pic_9362647_b.png'
+          }
+        });
+        this.setData({
+          notices: updatedNotices
+        });
+        console.log(this.data.notices)
+        });
     },
     onShow() {
     },

@@ -1,4 +1,4 @@
-// pages/goodsorder/goodsorder.js
+// pages/center/balancetop/balancetop.js
 Page({
 
     /**

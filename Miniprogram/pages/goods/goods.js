@@ -33,6 +33,18 @@ Page({
     totalPrice: 0
   },
   onLoad: function () {
+    api.checklogin().then(data=>
+      {
+        console.log(data.data)
+        if(data.statusCode!=200)
+        {
+          wx.reLaunch({
+            url: '/pages/center/login/login',
+          })
+        }
+      }
+      
+    )
     api.getallgoods().then(data => {
       const goods = data.data.goods.map(item => {
         return {

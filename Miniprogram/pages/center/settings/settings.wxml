@@ -5,7 +5,7 @@
     <view class="card" style="margin-top: 20rpx; width: 90%;">
         <view class="items" slot="content">
             <view class="line-item" bindtap="edit">
-                修改账号信息
+                修改密码
             </view>
         </view>
     </view>
